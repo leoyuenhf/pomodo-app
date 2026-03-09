@@ -5,11 +5,14 @@ import { store } from './store'
 import { registerIpcHandlers } from './ipc'
 
 let mainWindow: BrowserWindow | null = null
+let isQuitting = false
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 960,
     height: 640,
+    minWidth: 960,
+    minHeight: 640,
     resizable: true,
     frame: false,
     backgroundColor: '#FAF5F2',
@@ -26,6 +29,14 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Enforce minimum window size after load
+  mainWindow.webContents.once('did-finish-load', () => {
+    const [w, h] = mainWindow!.getSize()
+    if (w < 960 || h < 640) {
+      mainWindow!.setSize(960, 640)
+    }
+  })
 
   registerIpcHandlers(mainWindow)
 }
@@ -47,9 +58,14 @@ app.whenReady().then(async () => {
   })
 })
 
-app.on('before-quit', async () => {
+app.on('before-quit', (event) => {
+  if (isQuitting) return
   if (store.get('blockingActive')) {
-    await unblockSites()
+    event.preventDefault()
+    isQuitting = true
+    unblockSites()
+      .catch(() => store.set('blockingActive', false))
+      .finally(() => app.quit())
   }
 })
 

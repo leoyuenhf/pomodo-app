@@ -38,7 +38,7 @@ export default function App(): React.ReactElement {
             key="landing"
             {...pageVariants}
             transition={{ duration: 0.3 }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <LandingPage
               settings={settings}
@@ -51,7 +51,7 @@ export default function App(): React.ReactElement {
             key="timer"
             {...pageVariants}
             transition={{ duration: 0.3 }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <TimerPage
               settings={settings}
