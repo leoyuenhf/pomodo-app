@@ -6,6 +6,7 @@ export const IPC = {
   UNBLOCK_SITES: 'unblock-sites',
   SET_TITLE: 'set-title',
   ON_RECOVERY: 'on-recovery',
+  TOGGLE_FULLSCREEN: 'toggle-fullscreen',
 } as const
 
 export type Theme = 'basic' | 'tomato'
@@ -26,4 +27,5 @@ export interface ElectronAPI {
   unblockSites: () => Promise<void>
   setTitle: (title: string) => void
   onRecovery: (callback: () => void) => () => void
+  toggleFullscreen: () => void
 }

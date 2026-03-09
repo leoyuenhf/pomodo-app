@@ -15,6 +15,7 @@ files:
 
 win:
   executableName: Pomodoro
+  requestedExecutionLevel: requireAdministrator
   target:
     - target: nsis
       arch:

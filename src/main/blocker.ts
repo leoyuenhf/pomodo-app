@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
-import { execSync, exec } from 'child_process'
+import { execSync } from 'child_process'
 import { app } from 'electron'
 import sudo from 'sudo-prompt'
 import { store } from './store'
@@ -31,6 +31,28 @@ function runElevated(command: string): Promise<void> {
   })
 }
 
+/** Write content to the hosts file. In production (requireAdministrator manifest) this
+ *  succeeds directly. In dev mode (no manifest) it falls back to sudo-prompt. */
+async function writeHostsFile(content: string): Promise<void> {
+  try {
+    fs.writeFileSync(HOSTS_PATH, content, 'utf8')
+  } catch (err: unknown) {
+    const code = (err as NodeJS.ErrnoException).code
+    if (code === 'EACCES' || code === 'EPERM') {
+      // Dev mode fallback: elevate via sudo-prompt
+      const tempFile = path.join(os.tmpdir(), `hosts_pomodoro_${Date.now()}.txt`)
+      fs.writeFileSync(tempFile, content, 'utf8')
+      try {
+        await runElevated(`copy /y "${tempFile}" "${HOSTS_PATH}"`)
+      } finally {
+        try { fs.unlinkSync(tempFile) } catch { /* ignore */ }
+      }
+    } else {
+      throw err
+    }
+  }
+}
+
 export async function blockSites(domains: string[]): Promise<void> {
   // Backup original hosts file
   const backupPath = getBackupPath()
@@ -43,41 +65,21 @@ export async function blockSites(domains: string[]): Promise<void> {
     .join('\n')
   const newContent = `${original}\n${MARKER_START}\n${entries}\n${MARKER_END}\n`
 
-  // Write to a temp file, then copy elevated
-  const tempFile = path.join(os.tmpdir(), `hosts_pomodoro_${Date.now()}.txt`)
-  fs.writeFileSync(tempFile, newContent, 'utf8')
-
-  try {
-    await runElevated(`copy /y "${tempFile}" "${HOSTS_PATH}"`)
-    store.set('blockingActive', true)
-    flushDns()
-  } finally {
-    try { fs.unlinkSync(tempFile) } catch { /* ignore */ }
-  }
+  await writeHostsFile(newContent)
+  store.set('blockingActive', true)
+  flushDns()
 }
 
 export async function unblockSites(): Promise<void> {
   const backupPath = getBackupPath()
 
   if (fs.existsSync(backupPath)) {
-    const tempFile = path.join(os.tmpdir(), `hosts_restore_${Date.now()}.txt`)
-    fs.copyFileSync(backupPath, tempFile)
-    try {
-      await runElevated(`copy /y "${tempFile}" "${HOSTS_PATH}"`)
-    } finally {
-      try { fs.unlinkSync(tempFile) } catch { /* ignore */ }
-    }
+    const backup = fs.readFileSync(backupPath, 'utf8')
+    await writeHostsFile(backup)
   } else {
     // Fallback: strip our markers from the current hosts file
     const current = fs.readFileSync(HOSTS_PATH, 'utf8')
-    const stripped = stripMarkers(current)
-    const tempFile = path.join(os.tmpdir(), `hosts_stripped_${Date.now()}.txt`)
-    fs.writeFileSync(tempFile, stripped, 'utf8')
-    try {
-      await runElevated(`copy /y "${tempFile}" "${HOSTS_PATH}"`)
-    } finally {
-      try { fs.unlinkSync(tempFile) } catch { /* ignore */ }
-    }
+    await writeHostsFile(stripMarkers(current))
   }
 
   store.set('blockingActive', false)

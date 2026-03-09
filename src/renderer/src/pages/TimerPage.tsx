@@ -72,6 +72,19 @@ export function TimerPage({ settings, onBack }: Props): React.ReactElement {
     }
   }
 
+  const handleResume = async (): Promise<void> => {
+    if (sessionMode === 'focus' && settings.blockerEnabled) {
+      const result = await window.api.blockSites(settings.blockedDomains)
+      if (result.ok) {
+        setBlockerActive(true)
+      } else {
+        setBlockerError(result.error ?? 'Blocker failed — continuing without blocking.')
+        setTimeout(() => setBlockerError(''), 4000)
+      }
+    }
+    resume()
+  }
+
   const handleReset = (): void => {
     reset()
     if (blockerActive) {
@@ -99,10 +112,27 @@ export function TimerPage({ settings, onBack }: Props): React.ReactElement {
       {/* Titlebar drag region */}
       <div className="titlebar" />
 
+      {/* Fullscreen button */}
+      <button
+        className="fullscreen-btn"
+        onClick={() => window.api.toggleFullscreen()}
+        aria-label="Toggle fullscreen"
+      />
+
       {/* Close button */}
       <button className="close-btn" onClick={handleReset} aria-label="Close" />
 
       <div className="timer-content">
+        {/* Blocker status indicator */}
+        {settings.blockerEnabled && (
+          <div className="blocker-status-indicator">
+            <div className={`blocker-light ${blockerActive ? 'active' : 'inactive'}`} />
+            <span className="blocker-status-text">
+              {blockerActive ? 'Blocker: ON' : 'Blocker: OFF'}
+            </span>
+          </div>
+        )}
+
         {/* Theme display */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -143,7 +173,7 @@ export function TimerPage({ settings, onBack }: Props): React.ReactElement {
             </button>
           )}
           {status === 'paused' && (
-            <button className="ctrl-btn primary" onClick={resume}>
+            <button className="ctrl-btn primary" onClick={handleResume}>
               Resume
             </button>
           )}

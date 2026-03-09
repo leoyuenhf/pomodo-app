@@ -21,7 +21,9 @@ export function WebsiteBlockerTab({ settings, onUpdate }: Props): React.ReactEle
   }
 
   const addDomain = (): void => {
-    const domain = inputValue.trim().toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '')
+    const domain = inputValue.trim().toLowerCase()
+      .replace(/^(https?:\/\/)?(www\.)?/, '')
+      .replace(/\/.*$/, '')
     if (!isValidDomain(domain)) {
       setInputError('Enter a valid domain (e.g. example.com)')
       return

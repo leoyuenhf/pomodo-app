@@ -20,6 +20,8 @@ const api: ElectronAPI = {
     ipcRenderer.on(IPC.ON_RECOVERY, handler)
     return () => ipcRenderer.removeListener(IPC.ON_RECOVERY, handler)
   },
+
+  toggleFullscreen: () => ipcRenderer.send(IPC.TOGGLE_FULLSCREEN),
 }
 
 contextBridge.exposeInMainWorld('api', api)

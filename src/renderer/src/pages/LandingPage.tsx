@@ -21,6 +21,13 @@ export function LandingPage({ settings, onUpdate, onStart }: Props): React.React
       {/* Draggable titlebar area */}
       <div className="titlebar" />
 
+      {/* Fullscreen button */}
+      <button
+        className="fullscreen-btn"
+        onClick={() => window.api.toggleFullscreen()}
+        aria-label="Toggle fullscreen"
+      />
+
       {/* Red dot close button */}
       <button
         className="close-btn"

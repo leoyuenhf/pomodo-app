@@ -27,4 +27,8 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   ipcMain.on(IPC.SET_TITLE, (_event, title: string) => {
     win.setTitle(title)
   })
+
+  ipcMain.on(IPC.TOGGLE_FULLSCREEN, () => {
+    win.setFullScreen(!win.isFullScreen())
+  })
 }
