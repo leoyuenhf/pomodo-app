@@ -1,7 +1,9 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { IPC } from '@shared/types'
+import type { SessionMode } from '@shared/types'
 import { getSettings, saveSettings } from './store'
 import { blockSites, unblockSites } from './blocker'
+import { enableWallpaper, disableWallpaper, updateWallpaper } from './wallpaper'
 
 export function registerIpcHandlers(win: BrowserWindow): void {
   ipcMain.handle(IPC.GET_SETTINGS, () => getSettings())
@@ -30,5 +32,17 @@ export function registerIpcHandlers(win: BrowserWindow): void {
 
   ipcMain.on(IPC.TOGGLE_FULLSCREEN, () => {
     win.setFullScreen(!win.isFullScreen())
+  })
+
+  ipcMain.handle(IPC.WALLPAPER_ENABLE, async () => {
+    await enableWallpaper()
+  })
+
+  ipcMain.handle(IPC.WALLPAPER_DISABLE, async () => {
+    await disableWallpaper()
+  })
+
+  ipcMain.on(IPC.WALLPAPER_TICK, (_event, time: string, mode: SessionMode) => {
+    updateWallpaper(time, mode).catch(() => { /* ignore tick errors */ })
   })
 }

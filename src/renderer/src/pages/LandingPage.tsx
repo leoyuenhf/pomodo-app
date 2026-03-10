@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import type { AppSettings } from '@shared/types'
+import type { AppSettings, ChainSession } from '@shared/types'
 import { SessionTab } from '../components/tabs/SessionTab'
 import { ThemeTab } from '../components/tabs/ThemeTab'
 import { WebsiteBlockerTab } from '../components/tabs/WebsiteBlockerTab'
@@ -11,10 +10,15 @@ interface Props {
   settings: AppSettings
   onUpdate: (patch: Partial<AppSettings>) => void
   onStart: () => void
+  sessionChain: ChainSession[]
+  onAddToChain: (session: ChainSession) => void
+  onClearChain: () => void
 }
 
-export function LandingPage({ settings, onUpdate, onStart }: Props): React.ReactElement {
+export function LandingPage({ settings, onUpdate, onStart, sessionChain, onAddToChain, onClearChain }: Props): React.ReactElement {
   const [activeTab, setActiveTab] = useState<Tab>('session')
+
+  const isChainFull = sessionChain.length >= 10
 
   return (
     <div className="landing-page">
@@ -58,7 +62,13 @@ export function LandingPage({ settings, onUpdate, onStart }: Props): React.React
         {/* Tab content */}
         <div className="tab-content">
           {activeTab === 'session' && (
-            <SessionTab settings={settings} onUpdate={onUpdate} />
+            <SessionTab
+              settings={settings}
+              onUpdate={onUpdate}
+              sessionChain={sessionChain}
+              onAddToChain={onAddToChain}
+              onClearChain={onClearChain}
+            />
           )}
           {activeTab === 'theme' && (
             <ThemeTab settings={settings} onUpdate={onUpdate} />
@@ -69,10 +79,24 @@ export function LandingPage({ settings, onUpdate, onStart }: Props): React.React
         </div>
       </div>
 
-      {/* Start button */}
-      <button className="start-btn" onClick={onStart}>
-        Start
-      </button>
+      {/* Bottom button row */}
+      <div className="bottom-btn-row">
+        {activeTab === 'session' && (
+          <button
+            className="add-chain-btn"
+            onClick={() => onAddToChain({ focusDuration: settings.focusDuration, restDuration: settings.breakDuration })}
+            disabled={isChainFull}
+          >
+            {isChainFull ? 'Chain full' : 'Add to chain'}
+          </button>
+        )}
+        <button
+          className="start-btn"
+          onClick={onStart}
+        >
+          Start
+        </button>
+      </div>
     </div>
   )
 }

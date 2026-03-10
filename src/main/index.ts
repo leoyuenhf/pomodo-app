@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { crashRecovery, unblockSites } from './blocker'
+import { wallpaperCrashRecovery, disableWallpaper } from './wallpaper'
 import { store } from './store'
 import { registerIpcHandlers } from './ipc'
 
@@ -12,7 +13,7 @@ function createWindow(): void {
     width: 960,
     height: 640,
     minWidth: 960,
-    minHeight: 640,
+    minHeight: 750,
     resizable: true,
     frame: false,
     backgroundColor: '#FAF5F2',
@@ -33,8 +34,8 @@ function createWindow(): void {
   // Enforce minimum window size after load
   mainWindow.webContents.once('did-finish-load', () => {
     const [w, h] = mainWindow!.getSize()
-    if (w < 960 || h < 640) {
-      mainWindow!.setSize(960, 640)
+    if (w < 960 || h < 750) {
+      mainWindow!.setSize(960, 750)
     }
   })
 
@@ -42,6 +43,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
+  await wallpaperCrashRecovery()
   const needed = await crashRecovery()
 
   createWindow()
@@ -60,12 +62,14 @@ app.whenReady().then(async () => {
 
 app.on('before-quit', (event) => {
   if (isQuitting) return
-  if (store.get('blockingActive')) {
+  const needsCleanup = store.get('blockingActive') || store.get('wallpaperActive')
+  if (needsCleanup) {
     event.preventDefault()
     isQuitting = true
-    unblockSites()
-      .catch(() => store.set('blockingActive', false))
-      .finally(() => app.quit())
+    Promise.allSettled([
+      store.get('blockingActive') ? unblockSites().catch(() => store.set('blockingActive', false)) : Promise.resolve(),
+      store.get('wallpaperActive') ? disableWallpaper().catch(() => store.set('wallpaperActive', false)) : Promise.resolve(),
+    ]).finally(() => app.quit())
   }
 })
 

@@ -7,6 +7,9 @@ export const IPC = {
   SET_TITLE: 'set-title',
   ON_RECOVERY: 'on-recovery',
   TOGGLE_FULLSCREEN: 'toggle-fullscreen',
+  WALLPAPER_ENABLE: 'wallpaper-enable',
+  WALLPAPER_DISABLE: 'wallpaper-disable',
+  WALLPAPER_TICK: 'wallpaper-tick',
 } as const
 
 export type Theme = 'basic' | 'tomato'
@@ -20,6 +23,11 @@ export interface AppSettings {
   blockedDomains: string[]
 }
 
+export interface ChainSession {
+  focusDuration: number  // minutes
+  restDuration: number   // minutes
+}
+
 export interface ElectronAPI {
   getSettings: () => Promise<AppSettings>
   saveSettings: (settings: Partial<AppSettings>) => Promise<void>
@@ -28,4 +36,7 @@ export interface ElectronAPI {
   setTitle: (title: string) => void
   onRecovery: (callback: () => void) => () => void
   toggleFullscreen: () => void
+  enableWallpaper: () => Promise<void>
+  disableWallpaper: () => Promise<void>
+  wallpaperTick: (time: string, mode: SessionMode) => void
 }

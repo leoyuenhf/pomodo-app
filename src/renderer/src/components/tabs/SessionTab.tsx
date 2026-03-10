@@ -1,12 +1,18 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react'
-import type { AppSettings } from '@shared/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import type { AppSettings, ChainSession } from '@shared/types'
+
+const MAX_CHAIN = 10
 
 interface Props {
   settings: AppSettings
   onUpdate: (patch: Partial<AppSettings>) => void
+  sessionChain: ChainSession[]
+  onAddToChain: (session: ChainSession) => void
+  onClearChain: () => void
 }
 
-export function SessionTab({ settings, onUpdate }: Props): React.ReactElement {
+export function SessionTab({ settings, onUpdate, sessionChain, onAddToChain, onClearChain }: Props): React.ReactElement {
   const { focusDuration, breakDuration } = settings
   const total = focusDuration + breakDuration
   const containerRef = useRef<HTMLDivElement>(null)
@@ -86,6 +92,8 @@ export function SessionTab({ settings, onUpdate }: Props): React.ReactElement {
     }
   }, [handleMouseMove, handleMouseUp])
 
+  const totalChainMinutes = sessionChain.reduce((sum, s) => sum + s.focusDuration + s.restDuration, 0)
+
   return (
     <div className="session-tab">
       <p className="session-label">How long is the session?</p>
@@ -119,6 +127,7 @@ export function SessionTab({ settings, onUpdate }: Props): React.ReactElement {
 
       <div className="duration-cards" ref={containerRef}>
         <div className="duration-card focus-card" style={{ flex: focusDuration }}>
+          <span className="card-watermark">FOCUS</span>
           <span className="card-mode">FOCUS</span>
           <span className="card-number">{focusDuration}</span>
           <span className="card-unit">minutes</span>
@@ -132,11 +141,54 @@ export function SessionTab({ settings, onUpdate }: Props): React.ReactElement {
         />
 
         <div className="duration-card rest-card" style={{ flex: breakDuration }}>
+          <span className="card-watermark">REST</span>
           <span className="card-mode">REST</span>
           <span className="card-number">{breakDuration}</span>
           <span className="card-unit">minutes</span>
         </div>
       </div>
+
+      {/* Chain timeline */}
+      <AnimatePresence>
+        {sessionChain.length > 0 && (
+          <motion.div
+            className="chain-area"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="chain-timeline">
+              <AnimatePresence initial={false}>
+                {sessionChain.map((session, i) => (
+                  <motion.div
+                    key={i}
+                    className="chain-session"
+                    style={{ flex: session.focusDuration + session.restDuration, transformOrigin: 'left center' }}
+                    initial={{ opacity: 0, scaleX: 0 }}
+                    animate={{ opacity: 1, scaleX: 1 }}
+                    exit={{ opacity: 0, scaleX: 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  >
+                    <div className="chain-block chain-block-focus" style={{ flex: session.focusDuration }}>
+                      {session.focusDuration}
+                    </div>
+                    <div className="chain-block chain-block-rest" style={{ flex: session.restDuration }}>
+                      {session.restDuration}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+            <div className="chain-footer">
+              <span className="chain-total">{totalChainMinutes} min total</span>
+              <button className="chain-clear-btn" onClick={onClearChain}>
+                Clear
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

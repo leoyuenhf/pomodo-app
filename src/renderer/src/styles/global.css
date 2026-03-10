@@ -17,6 +17,7 @@
 
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-alt: 'Montserrat Alternates', sans-serif;
 }
 
 html,
@@ -181,7 +182,9 @@ input {
 .tab-btn.active {
   background: var(--accent-green);
   color: var(--white);
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* Tab content */
@@ -189,9 +192,29 @@ input {
   flex: 1;
 }
 
+/* Bottom button row */
+.bottom-btn-row {
+  display: flex;
+  gap: 10px;
+  align-self: flex-end;
+  margin-bottom: 8px;
+}
+
+.add-chain-btn {
+  background: var(--btn-dark);
+  color: var(--white);
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+.add-chain-btn:hover { opacity: 0.85; }
+.add-chain-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* Start button */
 .start-btn {
-  align-self: flex-end;
   background: var(--btn-dark);
   color: var(--white);
   padding: 12px 48px;
@@ -200,7 +223,6 @@ input {
   font-weight: 500;
   letter-spacing: 0.02em;
   transition: opacity 0.15s;
-  margin-bottom: 8px;
 }
 .start-btn:hover { opacity: 0.85; }
 
@@ -218,9 +240,12 @@ input {
 }
 
 .spinner-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
+  background: var(--white);
+  border-radius: 999px;
+  padding: 8px 20px;
 }
 
 .spinner-arrows {
@@ -240,6 +265,7 @@ input {
 .arrow-btn:hover { background: rgba(44,36,36,0.08); }
 
 .spinner-number {
+  font-family: var(--font-alt);
   font-size: 2.8rem;
   font-weight: 300;
   line-height: 1;
@@ -255,7 +281,7 @@ input.spinner-number {
   border-bottom: 1.5px solid var(--text);
   outline: none;
   width: 3ch;
-  font-family: inherit;
+  font-family: var(--font-alt);
 }
 
 .spinner-unit {
@@ -276,11 +302,14 @@ input.spinner-number {
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  text-align: left;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
   min-width: 0;
   overflow: hidden;
+  position: relative;
+  min-height: 200px;
 }
 
 .focus-card {
@@ -288,6 +317,10 @@ input.spinner-number {
 }
 .rest-card {
   background: var(--accent-green);
+}
+
+.rest-card .card-watermark {
+  color: rgba(144, 160, 146, 0.3);
 }
 
 .session-divider {
@@ -321,13 +354,34 @@ input.spinner-number {
 .card-mode {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: rgba(132, 52, 50, 0.1);
   letter-spacing: 0.12em;
 }
 
+.card-watermark {
+  position: absolute;
+  font-family: var(--font-alt);
+  font-size: 9rem;
+  font-weight: 500;
+  color: rgba(132, 52, 50, 0.1);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 0;
+}
+
+.card-mode,
+.card-number,
+.card-unit {
+  position: relative;
+  z-index: 1;
+}
+
 .card-number {
-  font-size: 3.5rem;
-  font-weight: 300;
+  font-family: var(--font-alt);
+  font-size: 8rem;
+  font-weight: 0.001;
   color: var(--white);
   line-height: 1;
 }
@@ -336,6 +390,82 @@ input.spinner-number {
   font-size: 0.85rem;
   color: rgba(255,255,255,0.75);
   font-weight: 400;
+}
+
+/* Chain area (timeline + footer) */
+.chain-area {
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.chain-timeline {
+  display: flex;
+  height: auto;
+  border-radius: 10px;
+  overflow: hidden;
+  gap: 7px;
+  transform-origin: left center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.chain-session {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.chain-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-alt);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  min-width: 28px;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.chain-block-focus {
+  background: var(--accent-red);
+}
+
+.chain-block-rest {
+  background: var(--accent-green);
+}
+
+.chain-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding: 0 2px;
+}
+
+.chain-total {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.chain-clear-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chain-clear-btn:hover {
+  color: var(--accent-red);
 }
 
 /* ─── Theme Tab ─── */
@@ -613,6 +743,45 @@ input.spinner-number {
   background: transparent;
   color: var(--text-muted);
   border: 1.5px solid #e0d8d4;
+}
+
+/* ─── Wallpaper toggle button ─── */
+.wallpaper-toggle-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1.5px solid #e0d8d4;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wallpaper-toggle-btn:hover {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.wallpaper-toggle-btn.active {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: var(--white);
+}
+
+/* ─── Chain progress label on timer page ─── */
+.chain-progress-label {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .blocker-error-msg {

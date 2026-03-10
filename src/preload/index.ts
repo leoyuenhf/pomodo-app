@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '@shared/types'
-import type { ElectronAPI, AppSettings } from '@shared/types'
+import type { ElectronAPI, AppSettings, SessionMode } from '@shared/types'
 
 const api: ElectronAPI = {
   getSettings: () => ipcRenderer.invoke(IPC.GET_SETTINGS),
@@ -22,6 +22,13 @@ const api: ElectronAPI = {
   },
 
   toggleFullscreen: () => ipcRenderer.send(IPC.TOGGLE_FULLSCREEN),
+
+  enableWallpaper: () => ipcRenderer.invoke(IPC.WALLPAPER_ENABLE),
+
+  disableWallpaper: () => ipcRenderer.invoke(IPC.WALLPAPER_DISABLE),
+
+  wallpaperTick: (time: string, mode: SessionMode) =>
+    ipcRenderer.send(IPC.WALLPAPER_TICK, time, mode),
 }
 
 contextBridge.exposeInMainWorld('api', api)
