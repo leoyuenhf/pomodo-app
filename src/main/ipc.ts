@@ -38,8 +38,19 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     await enableWallpaper()
   })
 
-  ipcMain.handle(IPC.WALLPAPER_DISABLE, async () => {
-    await disableWallpaper()
+  ipcMain.handle(IPC.WALLPAPER_DISABLE, () => {
+    disableWallpaper()
+  })
+
+  ipcMain.on(IPC.TIMER_COMPLETE, () => {
+    win.setAlwaysOnTop(true)
+    win.show()
+    win.focus()
+    win.setAlwaysOnTop(false)
+  })
+
+  ipcMain.on(IPC.MINIMIZE, () => {
+    win.minimize()
   })
 
   ipcMain.on(IPC.WALLPAPER_TICK, (_event, time: string, mode: SessionMode) => {

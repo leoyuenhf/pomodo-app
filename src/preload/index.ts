@@ -23,12 +23,16 @@ const api: ElectronAPI = {
 
   toggleFullscreen: () => ipcRenderer.send(IPC.TOGGLE_FULLSCREEN),
 
+  timerComplete: () => ipcRenderer.send(IPC.TIMER_COMPLETE),
+
   enableWallpaper: () => ipcRenderer.invoke(IPC.WALLPAPER_ENABLE),
 
   disableWallpaper: () => ipcRenderer.invoke(IPC.WALLPAPER_DISABLE),
 
   wallpaperTick: (time: string, mode: SessionMode) =>
     ipcRenderer.send(IPC.WALLPAPER_TICK, time, mode),
+
+  minimize: () => ipcRenderer.send(IPC.MINIMIZE),
 }
 
 contextBridge.exposeInMainWorld('api', api)

@@ -10,6 +10,8 @@ export const IPC = {
   WALLPAPER_ENABLE: 'wallpaper-enable',
   WALLPAPER_DISABLE: 'wallpaper-disable',
   WALLPAPER_TICK: 'wallpaper-tick',
+  TIMER_COMPLETE: 'timer-complete',
+  MINIMIZE: 'minimize',
 } as const
 
 export type Theme = 'basic' | 'tomato'
@@ -36,7 +38,9 @@ export interface ElectronAPI {
   setTitle: (title: string) => void
   onRecovery: (callback: () => void) => () => void
   toggleFullscreen: () => void
+  timerComplete: () => void
   enableWallpaper: () => Promise<void>
   disableWallpaper: () => Promise<void>
   wallpaperTick: (time: string, mode: SessionMode) => void
+  minimize: () => void
 }

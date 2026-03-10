@@ -53,6 +53,9 @@ export default function App(): React.ReactElement {
 
   return (
     <>
+      {/* Draggable title bar */}
+      <div className="titlebar" />
+
       <AnimatePresence mode="wait">
         {page === 'landing' ? (
           <motion.div

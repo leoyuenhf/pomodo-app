@@ -41,6 +41,7 @@ export function TimerPage({ settings, onBack, sessionChain }: Props): React.Reac
   }, [currentChainIndex, sessionChain.length, onBack])
 
   const handleComplete = useCallback(() => {
+    window.api.timerComplete()
     if (sessionMode === 'focus') {
       if (blockerActive) {
         window.api.unblockSites().then(() => setBlockerActive(false))
@@ -167,11 +168,11 @@ export function TimerPage({ settings, onBack, sessionChain }: Props): React.Reac
       {/* Titlebar drag region */}
       <div className="titlebar" />
 
-      {/* Fullscreen button */}
+      {/* Minimize button */}
       <button
         className="fullscreen-btn"
-        onClick={() => window.api.toggleFullscreen()}
-        aria-label="Toggle fullscreen"
+        onClick={() => window.api.minimize()}
+        aria-label="Minimize"
       />
 
       {/* Close button */}

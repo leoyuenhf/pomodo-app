@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { crashRecovery, unblockSites } from './blocker'
-import { wallpaperCrashRecovery, disableWallpaper } from './wallpaper'
+import { disableWallpaper } from './wallpaper'
 import { store } from './store'
 import { registerIpcHandlers } from './ipc'
 
@@ -43,7 +43,6 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
-  await wallpaperCrashRecovery()
   const needed = await crashRecovery()
 
   createWindow()
@@ -62,14 +61,14 @@ app.whenReady().then(async () => {
 
 app.on('before-quit', (event) => {
   if (isQuitting) return
-  const needsCleanup = store.get('blockingActive') || store.get('wallpaperActive')
+  disableWallpaper()
+  const needsCleanup = store.get('blockingActive')
   if (needsCleanup) {
     event.preventDefault()
     isQuitting = true
-    Promise.allSettled([
-      store.get('blockingActive') ? unblockSites().catch(() => store.set('blockingActive', false)) : Promise.resolve(),
-      store.get('wallpaperActive') ? disableWallpaper().catch(() => store.set('wallpaperActive', false)) : Promise.resolve(),
-    ]).finally(() => app.quit())
+    unblockSites()
+      .catch(() => store.set('blockingActive', false))
+      .finally(() => app.quit())
   }
 })
 

@@ -25,11 +25,11 @@ export function LandingPage({ settings, onUpdate, onStart, sessionChain, onAddTo
       {/* Draggable titlebar area */}
       <div className="titlebar" />
 
-      {/* Fullscreen button */}
+      {/* Minimize button */}
       <button
         className="fullscreen-btn"
-        onClick={() => window.api.toggleFullscreen()}
-        aria-label="Toggle fullscreen"
+        onClick={() => window.api.minimize()}
+        aria-label="Minimize"
       />
 
       {/* Red dot close button */}

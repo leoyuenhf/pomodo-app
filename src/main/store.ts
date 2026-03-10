@@ -3,8 +3,6 @@ import type { AppSettings, Theme } from '@shared/types'
 
 interface StoreSchema extends AppSettings {
   blockingActive: boolean
-  wallpaperActive: boolean
-  originalWallpaperPath: string
 }
 
 const DEFAULT_DOMAINS = [
@@ -25,8 +23,6 @@ const defaults: StoreSchema = {
   blockerEnabled: false,
   blockedDomains: DEFAULT_DOMAINS,
   blockingActive: false,
-  wallpaperActive: false,
-  originalWallpaperPath: '',
 }
 
 export const store = new Store<StoreSchema>({
